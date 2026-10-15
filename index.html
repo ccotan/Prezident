@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<title>Государство · Портал Президента</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="wrap">
+<nav aria-label="Основная навигация">
+  <button class="burger" aria-label="Открыть меню" onclick="$('#umenu')?.classList.remove('open');$('#links').classList.toggle('open')">Меню</button>
+  <a class="logo" onclick="go('home')" style="cursor:pointer">
+    <img src="assets/project-icon.png" class="project-mark" alt="Иконка портала">
+    <span id="srvName">Портал</span>
+  </a>
+  <div class="links" id="links">
+    <a data-p="news">Новости</a><a data-p="mins">Министерства</a><a id="reportsLink" data-p="reports">Отчёты</a><a data-p="complaints">Жалобы</a><a data-p="taxes">Налоги</a><a data-p="law">Закон</a><a data-p="admin" id="adminLink" style="display:none">Панель</a>
+  </div>
+  <div class="timer"><small id="termLbl">СРОК ПРЕЗИДЕНТА</small><b id="timer">—</b></div>
+  <button class="bell-button" id="bellButton" aria-label="Уведомления" onclick="go('notifications')"><span id="bellIcon"></span><span id="bellBadge" hidden>0</span></button><div class="user" id="userBox" onclick="userClick(event)"></div>
+</nav>
+
+<div class="statusline"><span class="tag t-pres" id="modeLabel">Загрузка…</span><span id="syncLabel" role="status"></span><button class="btn ghost sm" onclick="refreshPortal()">↻ Обновить данные</button></div>
+<div id="modeNotice" class="notice" hidden></div>
+<main>
+<section class="page" id="p-register">
+ <div class="head"><div class="section-label">АККАУНТ ИГРОКА</div><h1>Регистрация</h1><p>Создайте аккаунт для обращений и участия в работе министерств.</p></div>
+ <div class="auth-page card"><p id="registrationNotice" class="fieldhint"></p>
+ <form id="registrationForm" onsubmit="event.preventDefault();registerAccount()">
+ <label for="rNick">Minecraft-ник</label><input id="rNick" name="nick" autocomplete="username" minlength="2" maxlength="16" pattern="[A-Za-z0-9_]{2,16}" placeholder="Ваш Minecraft-ник" required><p class="fieldhint">2–16 латинских букв, цифр или _. Ник не подтверждает владение Minecraft-аккаунтом.</p>
+ <label for="rEmail">Почта</label><input id="rEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" maxlength="254" required>
+ <label for="rPass">Пароль</label><input id="rPass" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Не менее 8 символов" required>
+ <label for="rConfirm">Повторите пароль</label><input id="rConfirm" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Введите пароль ещё раз" required>
+ <p id="registrationStatus" role="status" aria-live="polite"></p>
+ <div class="auth-actions"><button id="registerSubmit" class="btn" type="submit">Создать аккаунт</button><button type="button" class="btn ghost" onclick="loginModal()">Уже есть аккаунт</button></div>
+ </form></div>
+</section>
+<!-- HOME -->
+<section class="page" id="p-home">
+  <div class="head"><h1 id="homeTitle">Государство сервера</h1><p>Официальный портал Президента: новости, министерства, отчёты, жалобы и налоговый реестр — всё в одном месте.</p></div>
+  <div class="hero">
+    <div id="heroHead" class="hero-head"></div>
+    <div>
+      <div class="eyebrow">Действующий президент</div>
+      <div class="big" id="heroPres">—</div>
+      <div class="sub" id="heroSub">3 министерства · открытый реестр налогов</div>
+      <div class="row" style="margin-top:22px"><button class="btn" onclick="go('news')">Читать новости</button><button class="btn ghost hero-secondary" onclick="go('complaints')">Подать жалобу</button></div>
+    </div>
+  </div>
+  <div class="stats" id="homeStats"></div>
+</section>
+
+<!-- NEWS -->
+<section class="page" id="p-news">
+  <div class="head"><h1>Новости</h1><p>Указы, объявления и важные события государства.</p></div>
+  <div class="narrow" style="max-width:820px">
+    <div class="row" id="newsActions" style="display:none;margin-bottom:24px"><p class="fieldhint">Публикации от имени государства</p><span class="sp"></span><button class="btn" onclick="openEditor('news')">Новая публикация</button></div>
+    <div class="news" id="newsList"></div>
+  </div>
+</section>
+
+<!-- MINISTRIES -->
+<section class="page" id="p-mins">
+  <div class="head"><h1>Кто главный</h1><p>Руководство государства и составы министерств.</p></div>
+  <div class="pres" id="presCard"></div>
+  <div class="grid3" id="minCards"></div>
+</section>
+
+<!-- REPORTS -->
+<section class="page" id="p-reports">
+  <div class="head"><h1>Каналы отчётов</h1><p>Сотрудники видят только канал своего министерства. Все каналы доступны только Президенту.</p></div>
+  <div class="chat">
+    <div class="chans" id="chans"></div>
+    <div class="feed">
+      <div class="feedhead" id="feedHead"></div>
+      <div class="msgs" id="msgs"></div>
+      <div class="compose" id="compose"></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPLAINTS -->
+<section class="page" id="p-complaints">
+  <div class="head"><h1>Жалобы</h1><p>На игрока, министерство или территорию. Видны только автору, Президенту и Мин. Без. Личные данные не публикуйте.</p></div>
+  <div class="grid2" style="grid-template-columns:420px 1fr;align-items:start">
+    <div class="card" style="position:sticky;top:100px">
+      <div class="h2">Подать жалобу</div>
+      <label>Тип</label>
+      <div class="seg" id="cType"><button data-v="player" class="on">Игрок</button><button data-v="ministry">Министерство</button><button data-v="territory">Территория</button></div>
+      <div id="cTargetWrap"></div>
+      <label>Суть жалобы</label><textarea id="cText" placeholder="Опишите, что произошло, когда и где..."></textarea>
+      <label>Доказательства (ссылка на скрин / видео)</label><input id="cProof" placeholder="https://...">
+      <button class="btn" style="width:100%;margin-top:16px" onclick="addComplaint()">Отправить</button>
+    </div>
+    <div>
+      <div class="row" style="margin-bottom:14px">
+        <div class="seg" id="cFilter" style="flex:1"><button data-v="all" class="on">Все</button><button data-v="new">Новые</button><button data-v="work">В работе</button><button data-v="ok">Решены</button><button data-v="no">Отклонены</button></div>
+      </div>
+      <div id="cList" style="display:grid;gap:12px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- TAXES -->
+<section class="page" id="p-taxes">
+  <div class="head"><h1>Налог на бочки</h1><p>Оплата действует 7 календарных дней по московскому времени. Поиск, статусы оплаты и удобный реестр бочек.</p></div>
+  <div class="taxtop" id="taxStats"></div>
+  <div class="card" style="padding:18px 8px 8px">
+    <div class="row" style="padding:0 12px 14px">
+      <input id="tSearch" placeholder="🔎 Поиск по нику или номеру" style="max-width:320px" oninput="renderTaxes()">
+      <select id="tFilter" style="max-width:200px" onchange="renderTaxes()"><option value="all">Все статусы</option><option value="act">Активна</option><option value="soon">Скоро истекает</option><option value="exp">Истекла</option></select>
+      <span class="sp"></span>
+      <button class="btn ghost sm" id="tImportBtn" onclick="importTaxModal()">↑ Импорт XLSX</button>
+      <button class="btn sm" id="tAddBtn" onclick="openTax()">+ Добавить бочку</button>
+    </div>
+    <div class="tblwrap"><table class="tbl"><thead><tr><th>👔 НИК</th><th>🎫 НОМЕР</th><th>📅 ОБНОВЛЕНО</th><th>📅 ОКОНЧАНИЕ</th><th>⏱ ОСТАЛОСЬ</th><th>📌 СТАТУС</th><th>📄 ДОП. СВЕДЕНИЯ</th><th></th></tr></thead><tbody id="taxBody"></tbody></table></div>
+  </div>
+</section>
+
+<!-- CONSTITUTION -->
+<section class="page" id="p-law">
+ <div class="head"><div class="eyebrow section-label">ОСНОВНОЙ ДОКУМЕНТ</div><h1>Конституция</h1><p>Права жителей, правила государства и полномочия министерств.</p></div>
+ <div class="narrow" style="max-width:900px"><div class="row" id="lawActions" style="display:none;margin-bottom:24px"><p class="fieldhint">Черновик виден только Президенту</p><span class="sp"></span><button class="btn" onclick="openEditor('law')">Редактировать закон</button></div><div id="lawDoc"></div></div>
+</section>
+
+<section class="page" id="p-case"><div class="head"><div class="section-label">СЛУЖБА РАССМОТРЕНИЯ ОБРАЩЕНИЙ</div><h1>Чат по жалобе</h1><p>Переписка автора с Президентом и Мин. Без. Сообщения и материалы доступны только участникам рассмотрения.</p></div><div class="narrow case-page"><div class="row section-actions"><button class="btn ghost" onclick="go('complaints')">← К списку жалоб</button><span class="sp"></span><button class="btn ghost" onclick="copyCaseLink()">Ссылка на обращение</button><button class="btn ghost" onclick="refreshCaseThread(true)">Обновить чат</button></div><p id="caseSync" class="fieldhint" role="status"></p><div id="caseError" role="alert" hidden></div><div id="casePageBody" class="card case-modal"></div></div></section>
+<section class="page" id="p-cabinet"><div class="head"><div class="section-label">ВАШЕ УЧАСТИЕ В ГОСУДАРСТВЕ</div><h1>Личный кабинет</h1><p>Роль, бочки, обращения и работа министерства.</p></div><div id="cabinetBody" class="narrow"></div></section>
+<section class="page" id="p-notifications"><div class="head"><h1>Уведомления</h1><p>Важные события вашего кабинета и министерства.</p></div><div class="narrow" style="max-width:860px"><div class="row section-actions"><span id="notificationSummary" class="muted"></span><span class="sp"></span><button class="btn ghost" onclick="markAllNotifications()">Прочитать все</button></div><div id="notificationList"></div></div></section>
+<section class="page" id="p-tasks"><div class="head"><h1>Задачи министерствам</h1><p>Поручения, сроки и результаты. Каждое министерство видит только свои задачи.</p></div><div class="narrow"><div class="row section-actions"><select id="taskFilter" onchange="renderTasks()" aria-label="Фильтр задач"><option value="open">Открытые</option><option value="all">Все задачи</option><option value="done">Завершённые</option></select><span class="sp"></span><button id="taskCreateButton" class="btn" onclick="taskEditor()">Поставить задачу</button></div><div id="taskList" class="task-grid"></div></div></section>
+<section class="page" id="p-team"><div class="head"><h1>Состав министерства</h1><p>Набор игроков и управление сотрудниками своего министерства.</p></div><div class="narrow" id="teamBody"></div></section>
+<section class="page" id="p-history"><div class="head"><h1>История действий</h1><p>Серверный журнал изменений. Только для Президента.</p></div><div class="narrow"><div class="row section-actions"><input id="historySearch" placeholder="Поиск по действию или игроку" oninput="renderHistory()" aria-label="Поиск по журналу"></div><div id="historyList"></div></div></section>
+<!-- ADMIN -->
+<section class="page" id="p-admin">
+  <div class="head"><h1>Панель Президента</h1><p>Выдача ролей, назначение глав министерств и настройки сайта.</p></div>
+  <div class="grid2" style="grid-template-columns:1.6fr 1fr;align-items:start">
+    <div class="card">
+      <div class="row"><div class="h2">Игроки и роли</div><span class="sp"></span><span class="fieldhint">Игрок появится после регистрации</span></div>
+      <p class="fieldhint" style="margin-top:12px">На телефоне прокрутите таблицу вправо для назначения главы.</p><div class="tblwrap" tabindex="0" aria-label="Игроки и роли, горизонтальная прокрутка"><table class="tbl" style="margin-top:10px"><thead><tr><th>ИГРОК</th><th>МИНИСТЕРСТВО</th><th>ГЛАВА</th><th></th></tr></thead><tbody id="plBody"></tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="h2">Настройки</div>
+      <label>Название сервера</label><input id="sName">
+      <label>IP сервера</label><input id="sIp">
+      <label>Действующий Президент</label><input id="sPres" disabled>
+      <label>Окончание срока Президента (МСК)</label><input id="sTerm" type="datetime-local">
+      <p class="fieldhint" style="margin-top:12px">Пароль меняется в меню аккаунта. Передача поста — отдельное подтверждаемое действие.</p>
+      <button class="btn" style="width:100%;margin-top:16px" onclick="saveSettings()">Сохранить</button>
+      <div class="row" style="margin-top:12px"><button class="btn ghost sm" onclick="backup()">↓ Снимок JSON</button><button class="btn ghost sm" onclick="transferModal()">Передать пост</button></div><p class="fieldhint" style="margin-top:12px">Снимок JSON — экспорт реестров, не полная резервная копия базы и аккаунтов.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="l"><span class="logo" style="font-size:20px" id="ftName">Портал</span><a onclick="go('news')">Новости</a><a onclick="go('mins')">Министерства</a><a id="footerReports" onclick="go('reports')">Отчёты</a><a onclick="go('complaints')">Жалобы</a><a onclick="go('taxes')">Налоги</a><a onclick="go('law')">Закон</a></div>
+  <div class="row"><span class="muted small" id="copy"></span><span class="sp"></span><span class="by">ПОРТАЛ ПРЕЗИДЕНТА <span id="ftPres">Президент не назначен</span></span></div>
+</footer>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Диалог" onclick="if(event.target===this)closeModal()"><div class="card" id="modalBody"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="config.js"></script>
+<script src="assets/xlsx.js"></script>
+<script src="assets/ui.js"></script>
+<script src="assets/improvements.js"></script>
+<script src="assets/features.js"></script>
+<script src="assets/support-chat.js"></script>
+<script src="assets/accounts.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

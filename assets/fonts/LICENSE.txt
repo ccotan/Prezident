@@ -1,0 +1,3 @@
+Portal Pixel — original small bitmap-style numeric font generated for this portal.
+This font is released under CC0 1.0 Universal. No Minecraft/Mojang font files are included.
+It contains digits, punctuation and a few Cyrillic timer labels; it is not a full text font.
